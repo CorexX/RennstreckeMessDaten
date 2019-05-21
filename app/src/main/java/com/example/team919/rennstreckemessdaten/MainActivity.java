@@ -259,11 +259,39 @@ public class MainActivity extends AppCompatActivity {
 
     private String klassifizieren(float GyroZ){
         //Hier kommt der Entscheidungsbaum rein:-------------------------
+        if(GyroZ > -0.517536){					// Rechter Baum
+            if(GyroZ > 0.511035){				// Ebene 1 R
+                if(GyroZ > 1.51962){				// Ebene 2 R
+                    if(GyroZ > 3.593333){ 				// Ebene 3 R
+                        return "Links 60";
+                    } else {							// Ebene 3 L
+                        if(GyroZ > 1.954015){				// Ebene 4 R
+                            return "Links 180";
+                        } else {							// Ebene 4 L
+                            return "Links 120";
+                        }
+                    }
+                } else {							// Ebene 2 L
+                    return "Links 60";
+                }
+            } else{								// Ebene 1 L
+                return "gerade";
+            }
+        } else {								// Linker Baum
+            if(GyroZ > -2.412341){				// Ebene 1 R
+                if(GyroZ > -1.392731) {				// Ebene 2 R
+                    return "Rechts 50";
+                } else { 							// Ebene 2 L
+                    return "Rechts 240";
+                }
+            }	else {							// Ebene 1 L
+                return "Rechts 60";
+            }
+        }
 
-
-
-    return "gerade";
+        //return "Fehler";
+    };
     }
-}
+
 
 
