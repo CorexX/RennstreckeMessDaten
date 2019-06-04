@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,16 +35,21 @@ public class MainActivity extends AppCompatActivity {
     Button btn_start;
     TextView txtACC;
     TextView txtGyro;
+    TextView txtRichtung;
+    ImageView imageViewRichtungBG;
     Spinner spinnerSensorSpeed;
 
 
+
+
     int flag = 0;
+
     int rechts = 0;
     int links = 0;
     double tres = 0.5;
 
-    double summe;
-    int anzsumme;
+    double summe = 0;
+    int anzsumme = 0;
 
     long starttimestamp = 0;
     long endtimestamp = 0;
@@ -80,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
         txtGyro = findViewById(R.id.txtGyro);
         spinnerSensorSpeed = findViewById(R.id.spinnerSensorSpeed);
         txt_name = findViewById(R.id.txt_name);
+        txtRichtung = findViewById(R.id.txtRichtung);
+        imageViewRichtungBG =  findViewById(R.id.imageViewRichtungBG);
+
+
 
         decimalFormat = new DecimalFormat("00.00");
 
@@ -104,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             public void onSensorChanged(SensorEvent event) {
                 switch(event.sensor.getType()){
                     case Sensor.TYPE_ACCELEROMETER:
+                        // Werte in Listen und GUI schreiben
                         txtACC.setText("ACC:\n" + "X: " + decimalFormat.format(event.values[0])  + "\nY: " + decimalFormat.format(event.values[1]) + "\nZ: " + decimalFormat.format(event.values[2]));
                         //ACCList.add("\""+ Calendar.getInstance().getTime().getTime() + "\";\"" + event.values[0]  + "\";\"" +event.values[1]  + "\";\"" +event.values[2]  + "\";");
                         timeList.add(Calendar.getInstance().getTime().getTime());
@@ -114,13 +125,77 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                     case Sensor.TYPE_GYROSCOPE:
-
+                        // Werte in Listen und GUI schreiben
                         txtGyro.setText("GYRO:\n" + "X: " + decimalFormat.format(event.values[0])  + "\nY: " + decimalFormat.format(event.values[1]) + "\nZ: " + decimalFormat.format(event.values[2]));
                         //gyroList.add("\"" + event.values[0]  + "\";\"" +event.values[1]  + "\";\"" +event.values[2]  + "\";\"" + drehung +"\"\n");
                         gyroX.add(event.values[0]);
                         gyroY.add(event.values[1]);
                         gyroZ.add(event.values[2]);
-                        gyroDrehung.add(klassifizieren(event.values[2]));
+
+
+
+                        //Winkel letzter Kurve berechnen und in liste schreiben
+
+                        if(Math.abs(event.values[2]) >= tres){   //treshold bestimmen
+                            if(event.values[2]>0){              // linksdrehung
+                                txtRichtung.setText("<");
+                                imageViewRichtungBG.setBackgroundColor(11075505);
+
+                                if(flag == 0 ) starttimestamp = event.timestamp;
+                                flag=1;
+
+                                summe+=Math.abs(event.values[2]);
+                                anzsumme++;
+
+                            }
+                            if(event.values[2]<0) {              // rechtsdrehung
+                                txtRichtung.setText(">");
+                                imageViewRichtungBG.setBackgroundColor(16764584);
+
+                                if(flag == 0 ) starttimestamp = event.timestamp;
+                                flag=2;
+
+                                summe+=Math.abs(event.values[2]);
+                                anzsumme++;
+                            }
+
+                        }else{
+                            txtRichtung.setText("|");           // keine drehung
+
+                            if(flag == 1){                      // linksdrehung beenden;
+                                flag =0;
+                                endtimestamp = event.timestamp;
+
+                                timesek = (endtimestamp-starttimestamp)*0.000000001;        //dauer in sek
+                                avgdeg = Math.toDegrees(summe)/anzsumme;                    //durchschnittliche drehung in °
+
+
+                                for(int i = 1; i<=anzsumme;i++){
+                                   gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve" + String.valueOf(decimalFormat.format(avgdeg*timesek)));
+                                }
+
+                                summe =0;
+                                anzsumme = 0;
+                            }
+
+                            if(flag == 2){                      // rechtsdrehung beenden
+                                flag =0;
+                                endtimestamp = event.timestamp;
+
+                                timesek = (endtimestamp-starttimestamp)*0.000000001;        //dauer in sek
+                                avgdeg = Math.toDegrees(summe)/anzsumme;                    //drehung in °
+
+                                for(int i = 1; i<=anzsumme;i++){
+                                    gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve" + String.valueOf(decimalFormat.format(avgdeg*timesek)));
+                                }
+
+                                summe =0;
+                                anzsumme = 0;
+                            }
+                            //
+                        }
+                        gyroDrehung.add("gerade");
+                        //gyroDrehung.add(klassifizieren(event.values[2]));
 
                         break;
 
@@ -163,11 +238,8 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     accX = glaetten(accX, 15);
-                    //accY = glaetten(accY, 15);
-                    //accZ = glaetten(accZ, 15);
-                    //gyroX = glaetten(gyroX, 5);
-                    //gyroY = glaetten(gyroY, 5);
                     gyroZ = glaetten(gyroZ, 5);
+
                     for(int i = 0; i<accX.size(); i++){
                         ACCList.add("\""+ timeList.get(i) + "\";\"" + accX.get(i)  + "\";\"" + accY.get(i)  + "\";\"" + accZ.get(i)  + "\";");
                     }
@@ -176,6 +248,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     int smaler;
+
                     if(ACCList.size()<gyroList.size()){
                         smaler =ACCList.size();
                     }else {
@@ -259,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String klassifizieren(float GyroZ){
         //Hier kommt der Entscheidungsbaum rein:-------------------------
+        /*
         if(GyroZ > -0.517536){					// Rechter Baum
             if(GyroZ > 0.511035){				// Ebene 1 R
                 if(GyroZ > 1.51962){				// Ebene 2 R
@@ -280,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
         } else {								// Linker Baum
             if(GyroZ > -2.412341){				// Ebene 1 R
                 if(GyroZ > -1.392731) {				// Ebene 2 R
-                    return "Rechts 50";
+                    return "Rechts 60";
                 } else { 							// Ebene 2 L
                     return "Rechts 240";
                 }
@@ -288,8 +362,8 @@ public class MainActivity extends AppCompatActivity {
                 return "Rechts 60";
             }
         }
-
-        //return "Fehler";
+        */
+        return "Fehler";
     };
     }
 
