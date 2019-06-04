@@ -1,5 +1,6 @@
 package com.example.team919.rennstreckemessdaten;
 
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -34,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     Button btn_start;
     TextView txtACC;
     TextView txtGyro;
+    TextView txtRichtung;
     Spinner spinnerSensorSpeed;
 
 
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
         btn_start = findViewById(R.id.btn_start);
         txtACC = findViewById(R.id.txtACC);
         txtGyro = findViewById(R.id.txtGyro);
+        txtRichtung =  findViewById(R.id.txtRichtung);
         spinnerSensorSpeed = findViewById(R.id.spinnerSensorSpeed);
         txt_name = findViewById(R.id.txt_name);
 
@@ -121,17 +124,23 @@ public class MainActivity extends AppCompatActivity {
                             //anzsumme++;
                             if(event.values[2]>0){              // linksdrehung
                                 drehung = "Links";
+                                txtRichtung.setText("<");
+                                txtRichtung.setBackgroundColor(Color.RED);
                                 //if(flag == 0 ) starttimestamp = event.timestamp;
                                 flag=1;
 
                             }
                             if(event.values[2]<0) {              // rechtsdrehung
                                 drehung = "Rechts";
+                                txtRichtung.setText(">");
+                                txtRichtung.setBackgroundColor(Color.GREEN);
                                 // if(flag == 0 ) starttimestamp = event.timestamp;
                                 flag=2;
                             }
                         }else{
+                            txtRichtung.setText("|");
                             drehung = "gerade";           // keine drehung
+                            txtRichtung.setBackgroundColor(Color.WHITE);
                             if(flag == 1){                      // linksdrehung beenden
                                 // links++;
                                 // endtimestamp = event.timestamp;
