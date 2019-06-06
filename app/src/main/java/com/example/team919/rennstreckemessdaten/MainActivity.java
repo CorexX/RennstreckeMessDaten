@@ -1,5 +1,6 @@
 package com.example.team919.rennstreckemessdaten;
 
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -36,11 +37,7 @@ public class MainActivity extends AppCompatActivity {
     TextView txtACC;
     TextView txtGyro;
     TextView txtRichtung;
-    ImageView imageViewRichtungBG;
     Spinner spinnerSensorSpeed;
-
-
-
 
     int flag = 0;
 
@@ -88,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         spinnerSensorSpeed = findViewById(R.id.spinnerSensorSpeed);
         txt_name = findViewById(R.id.txt_name);
         txtRichtung = findViewById(R.id.txtRichtung);
-        imageViewRichtungBG =  findViewById(R.id.imageViewRichtungBG);
+
 
 
 
@@ -140,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                         if(Math.abs(event.values[2]) >= tres){   //treshold bestimmen
                             if(event.values[2]>0){              // linksdrehung
                                 txtRichtung.setText("<");
-                                imageViewRichtungBG.setBackgroundColor(11075505);
+                                txtRichtung.setBackgroundColor(Color.RED);
 
                                 if(flag == 0 ) starttimestamp = event.timestamp;
                                 flag=1;
@@ -151,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             if(event.values[2]<0) {              // rechtsdrehung
                                 txtRichtung.setText(">");
-                                imageViewRichtungBG.setBackgroundColor(16764584);
+                                txtRichtung.setBackgroundColor(Color.GREEN);
 
                                 if(flag == 0 ) starttimestamp = event.timestamp;
                                 flag=2;
@@ -162,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
                         }else{
                             txtRichtung.setText("|");           // keine drehung
+                            txtRichtung.setBackgroundColor(Color.WHITE);
 
                             if(flag == 1){                      // linksdrehung beenden;
                                 flag =0;
@@ -190,6 +188,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 timesek = (endtimestamp-starttimestamp)*0.000000001;        //dauer in sek
                                 avgdeg = Math.toDegrees(summe)/anzsumme;                    //drehung in °
+
+                                totalDeg = avgdeg*timesek;
 
                                 for(int i = 1; i<=anzsumme;i++){
                                     if(Math.abs(totalDeg)>270) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 300");
