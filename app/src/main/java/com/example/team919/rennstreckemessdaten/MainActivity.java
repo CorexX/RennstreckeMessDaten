@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     double timesek;
     double avgdeg;
+    double totalDeg;
 
     String drehung = "gerade";
 
@@ -169,9 +170,14 @@ public class MainActivity extends AppCompatActivity {
                                 timesek = (endtimestamp-starttimestamp)*0.000000001;        //dauer in sek
                                 avgdeg = Math.toDegrees(summe)/anzsumme;                    //durchschnittliche drehung in °
 
+                                totalDeg = avgdeg*timesek;
 
                                 for(int i = 1; i<=anzsumme;i++){
-                                   gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve" + String.valueOf(decimalFormat.format(avgdeg*timesek)));
+                                    if(Math.abs(totalDeg)>270) gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve 300");
+                                    if(Math.abs(totalDeg)>210 && Math.abs(totalDeg)<= 270) gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve 240");
+                                    if(Math.abs(totalDeg)>150 && Math.abs(totalDeg)<= 210) gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve 180");
+                                    if(Math.abs(totalDeg)>90 && Math.abs(totalDeg)<= 150) gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve 120");
+                                    if(Math.abs(totalDeg)>30 && Math.abs(totalDeg)<= 90) gyroDrehung.set(gyroDrehung.size()-i,"Linkskurve 60");
                                 }
 
                                 summe =0;
@@ -186,7 +192,11 @@ public class MainActivity extends AppCompatActivity {
                                 avgdeg = Math.toDegrees(summe)/anzsumme;                    //drehung in °
 
                                 for(int i = 1; i<=anzsumme;i++){
-                                    gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve" + String.valueOf(decimalFormat.format(avgdeg*timesek)));
+                                    if(Math.abs(totalDeg)>270) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 300");
+                                    if(Math.abs(totalDeg)>210 && Math.abs(totalDeg)<= 270) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 240");
+                                    if(Math.abs(totalDeg)>150 && Math.abs(totalDeg)<= 210) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 180");
+                                    if(Math.abs(totalDeg)>90 && Math.abs(totalDeg)<= 150) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 120");
+                                    if(Math.abs(totalDeg)>30 && Math.abs(totalDeg)<= 90) gyroDrehung.set(gyroDrehung.size()-i,"Rechtskurve 60");
                                 }
 
                                 summe =0;
